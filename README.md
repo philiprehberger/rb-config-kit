@@ -2,8 +2,13 @@
 
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-config_kit.svg)](https://rubygems.org/gems/philiprehberger-config_kit)
 [![CI](https://github.com/philiprehberger/rb-config-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/philiprehberger/rb-config-kit/actions/workflows/ci.yml)
+[![License](https://img.shields.io/github/license/philiprehberger/rb-config-kit)](LICENSE)
 
 Layered configuration with YAML, ENV, and defaults.
+
+## Requirements
+
+- Ruby >= 3.1
 
 ## Installation
 
@@ -103,6 +108,15 @@ config.to_h
 | `integer(name, default:, env:)` | `:integer` | `Integer(value)` |
 | `float(name, default:, env:)` | `:float` | `Float(value)` |
 | `boolean(name, default:, env:)` | `:boolean` | `true`/`"true"`/`"1"`/`"yes"` are truthy |
+
+
+## Development
+
+```bash
+bundle install
+bundle exec rspec
+bundle exec rubocop
+```
 
 ## License
 
