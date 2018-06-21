@@ -1,7 +1,7 @@
 # philiprehberger-config_kit
 
+[![Tests](https://github.com/philiprehberger/rb-config-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/philiprehberger/rb-config-kit/actions/workflows/ci.yml)
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-config_kit.svg)](https://rubygems.org/gems/philiprehberger-config_kit)
-[![CI](https://github.com/philiprehberger/rb-config-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/philiprehberger/rb-config-kit/actions/workflows/ci.yml)
 [![License](https://img.shields.io/github/license/philiprehberger/rb-config-kit)](LICENSE)
 
 Layered configuration with YAML, ENV, and defaults.
