@@ -3,7 +3,13 @@
 All notable changes to this gem will be documented in this file.
 
 ## [Unreleased]
-n## [0.1.5] - 2026-03-22
+
+## [0.1.6] - 2026-03-22
+
+### Added
+- Expand test coverage to 30+ examples with edge cases for layer precedence, boolean casting, YAML edge cases, mixed types, frozen store, undefined keys
+
+## [0.1.5] - 2026-03-22
 
 ### Changed
 - Update rubocop configuration for Windows compatibility
