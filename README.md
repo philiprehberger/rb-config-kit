@@ -2,7 +2,11 @@
 
 [![Tests](https://github.com/philiprehberger/rb-config-kit/actions/workflows/ci.yml/badge.svg)](https://github.com/philiprehberger/rb-config-kit/actions/workflows/ci.yml)
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-config_kit.svg)](https://rubygems.org/gems/philiprehberger-config_kit)
+[![GitHub release](https://img.shields.io/github/v/release/philiprehberger/rb-config-kit)](https://github.com/philiprehberger/rb-config-kit/releases)
+[![Last updated](https://img.shields.io/github/last-commit/philiprehberger/rb-config-kit)](https://github.com/philiprehberger/rb-config-kit/commits/main)
 [![License](https://img.shields.io/github/license/philiprehberger/rb-config-kit)](LICENSE)
+[![Bug Reports](https://img.shields.io/github/issues/philiprehberger/rb-config-kit/bug)](https://github.com/philiprehberger/rb-config-kit/issues?q=is%3Aissue+is%3Aopen+label%3Abug)
+[![Feature Requests](https://img.shields.io/github/issues/philiprehberger/rb-config-kit/enhancement)](https://github.com/philiprehberger/rb-config-kit/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
 [![Sponsor](https://img.shields.io/badge/sponsor-GitHub%20Sponsors-ec6cb9)](https://github.com/sponsors/philiprehberger)
 
 Layered configuration with YAML, ENV, and defaults
@@ -26,8 +30,6 @@ gem install philiprehberger-config_kit
 ```
 
 ## Usage
-
-### Basic (defaults only)
 
 ```ruby
 require "philiprehberger/config_kit"
@@ -76,40 +78,75 @@ end
 config[:port] # => 9090
 ```
 
+### Nested configuration
+
+Dot-notation keys map to nested YAML structures and uppercase ENV variables with underscores:
+
+```ruby
+config = Philiprehberger::ConfigKit.define(yaml: "config.yml") do
+  string  "database.host", default: "localhost"
+  integer "database.port", default: 5432
+end
+
+# Reads from YAML: database: { host: "db.example.com" }
+# Or from ENV: DATABASE_HOST=db.example.com
+config["database.host"] # => "db.example.com"
+config.to_h             # => { "database" => { "host" => "...", "port" => 5432 } }
+```
+
+### Array and hash types
+
+```ruby
+config = Philiprehberger::ConfigKit.define do
+  array :tags, of: :string   # ENV: splits by comma — "ruby,web,api"
+  array :ports, of: :integer  # ENV: "3000,4000,5000" => [3000, 4000, 5000]
+  hash_type :redis             # ENV: collects REDIS_HOST, REDIS_PORT into hash
+end
+
+config[:tags]  # => ["ruby", "web", "api"]
+config[:ports] # => [3000, 4000, 5000]
+config[:redis] # => { "host" => "localhost", "port" => "6379" }
+```
+
+### Required keys
+
+```ruby
+config = Philiprehberger::ConfigKit.define do
+  required :api_key, type: :string, env: "API_KEY"
+  required :port, type: :integer, env: "PORT"
+end
+# Raises ConfigKit::MissingKeyError if API_KEY or PORT is not set
+```
+
 ### Resolution order
 
 Values are resolved in this order (highest priority first):
 
-1. **ENV variables** (if `env:` key is set and the variable exists)
+1. **ENV variables** (auto-generated or explicit `env:` key)
 2. **YAML file** (if `yaml:` path is provided and the key exists)
 3. **Defaults** (from the schema definition)
-
-### Export all values
-
-```ruby
-config.to_h
-# => { app_name: "my-app", port: 3000, debug: false }
-```
 
 ## API
 
 | Method | Description |
-|---|---|
+|--------|-------------|
 | `Philiprehberger::ConfigKit.define(yaml:, env:, &block)` | Create a new config store |
 | `config.get(key)` / `config[key]` | Get a config value |
-| `config.to_h` | Export all values as a hash |
+| `config.to_h` | Export all values as a nested hash |
 | `config.keys` | List all defined keys |
 | `config.key?(key)` | Check if a key is defined |
 
 ### Schema DSL
 
 | Method | Type | Cast behavior |
-|---|---|---|
+|--------|------|---------------|
 | `string(name, default:, env:)` | `:string` | `.to_s` |
 | `integer(name, default:, env:)` | `:integer` | `Integer(value)` |
 | `float(name, default:, env:)` | `:float` | `Float(value)` |
 | `boolean(name, default:, env:)` | `:boolean` | `true`/`"true"`/`"1"`/`"yes"` are truthy |
-
+| `array(name, of:, default:, env:)` | `:array` | Splits ENV by comma, coerces each element |
+| `hash_type(name, default:, env:)` | `:hash` | Collects `KEY_*` ENV vars into a hash |
+| `required(name, type:, env:)` | varies | Raises `MissingKeyError` if no value found |
 
 ## Development
 
@@ -118,6 +155,13 @@ bundle install
 bundle exec rspec
 bundle exec rubocop
 ```
+
+## Support
+
+If you find this package useful, consider giving it a star on GitHub — it helps motivate continued maintenance and development.
+
+[![LinkedIn](https://img.shields.io/badge/Philip%20Rehberger-LinkedIn-0A66C2?logo=linkedin)](https://www.linkedin.com/in/philiprehberger)
+[![More packages](https://img.shields.io/badge/more-open%20source%20packages-blue)](https://philiprehberger.com/open-source-packages)
 
 ## License
 

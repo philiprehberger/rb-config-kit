@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'config_kit/version'
+require_relative 'config_kit/errors'
 require_relative 'config_kit/schema'
 require_relative 'config_kit/loader'
 require_relative 'config_kit/store'

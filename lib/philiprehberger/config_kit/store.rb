@@ -16,13 +16,13 @@ module Philiprehberger
       end
 
       def get(key)
-        @values[key]
+        @values[key.to_s.include?('.') ? key.to_s : key]
       end
 
       alias [] get
 
       def to_h
-        @values.dup
+        build_nested_hash
       end
 
       def keys
@@ -30,7 +30,27 @@ module Philiprehberger
       end
 
       def key?(key)
-        @values.key?(key)
+        @values.key?(key.to_s.include?('.') ? key.to_s : key)
+      end
+
+      private
+
+      def build_nested_hash
+        result = {}
+        @values.each do |key, value|
+          parts = key.to_s.split('.')
+          if parts.length > 1
+            current = result
+            parts[0..-2].each do |part|
+              current[part] ||= {}
+              current = current[part]
+            end
+            current[parts.last] = value
+          else
+            result[key] = value
+          end
+        end
+        result
       end
     end
   end
