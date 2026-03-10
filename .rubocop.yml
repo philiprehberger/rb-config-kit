@@ -13,5 +13,8 @@ Metrics/BlockLength:
 Style/StringLiterals:
   EnforcedStyle: double_quotes
 
+Naming/PredicateMethod:
+  Enabled: false
+
 Layout/LineLength:
   Max: 120
