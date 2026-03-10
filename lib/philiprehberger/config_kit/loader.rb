@@ -26,9 +26,7 @@ module Philiprehberger
 
       def resolve_value(name, definition)
         # Layer 3: ENV override (highest priority)
-        if definition.env_key && @env.key?(definition.env_key)
-          return @env[definition.env_key]
-        end
+        return @env[definition.env_key] if definition.env_key && @env.key?(definition.env_key)
 
         # Layer 2: YAML file
         yaml_value = yaml_data[name.to_s]
@@ -56,11 +54,11 @@ module Philiprehberger
         when :string  then value.to_s
         when :integer then Integer(value)
         when :float   then Float(value)
-        when :boolean then to_boolean(value)
+        when :boolean then cast_boolean(value)
         end
       end
 
-      def to_boolean(value)
+      def cast_boolean(value)
         case value
         when true, "true", "1", "yes" then true
         when false, "false", "0", "no" then false
