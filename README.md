@@ -15,12 +15,12 @@ Layered configuration with YAML, ENV, and defaults.
 Add to your Gemfile:
 
 ```ruby
-gem "philiprehberger-config_kit", "~> 0.1"
+gem "philiprehberger-config_kit"
 ```
 
 Or install directly:
 
-```sh
+```bash
 gem install philiprehberger-config_kit
 ```
 
@@ -120,4 +120,4 @@ bundle exec rubocop
 
 ## License
 
-MIT - see [LICENSE](LICENSE).
+MIT
