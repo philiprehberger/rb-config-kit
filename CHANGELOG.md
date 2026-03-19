@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.3
+
+- Fix RuboCop Style/StringLiterals violations in gemspec
+
 ## 0.1.2
 
 - Fix CI: version test and rubocop compliance
