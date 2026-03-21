@@ -4,7 +4,7 @@
 [![Gem Version](https://badge.fury.io/rb/philiprehberger-config_kit.svg)](https://rubygems.org/gems/philiprehberger-config_kit)
 [![License](https://img.shields.io/github/license/philiprehberger/rb-config-kit)](LICENSE)
 
-Layered configuration with YAML, ENV, and defaults.
+Layered configuration with YAML, ENV, and defaults
 
 ## Requirements
 
