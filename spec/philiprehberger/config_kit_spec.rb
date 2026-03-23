@@ -228,5 +228,133 @@ RSpec.describe Philiprehberger::ConfigKit do
     it "is frozen after creation" do
       expect(config).to be_frozen
     end
+
+    it "returns nil for undefined keys" do
+      expect(config[:nonexistent]).to be_nil
+    end
+
+    it "to_h returns independent copy" do
+      h1 = config.to_h
+      h2 = config.to_h
+      expect(h1).not_to be(h2)
+      expect(h1).to eq(h2)
+    end
+  end
+
+  describe "type casting" do
+    it "casts boolean 'yes' as true" do
+      config = described_class.define(env: { "VAL" => "yes" }) do
+        boolean :val, env: "VAL"
+      end
+
+      expect(config[:val]).to eq(true)
+    end
+
+    it "casts boolean 'no' as false" do
+      config = described_class.define(env: { "VAL" => "no" }) do
+        boolean :val, env: "VAL"
+      end
+
+      expect(config[:val]).to eq(false)
+    end
+
+    it "casts non-standard boolean values with double-bang" do
+      config = described_class.define(env: { "VAL" => "anything" }) do
+        boolean :val, env: "VAL"
+      end
+
+      expect(config[:val]).to eq(true)
+    end
+
+    it "casts integer from YAML" do
+      yaml_file = Tempfile.new(["config", ".yml"])
+      yaml_file.write(YAML.dump("count" => 42))
+      yaml_file.close
+
+      config = described_class.define(yaml: yaml_file.path, env: {}) do
+        integer :count
+      end
+
+      expect(config[:count]).to eq(42)
+    ensure
+      yaml_file&.unlink
+    end
+
+    it "casts float from YAML" do
+      yaml_file = Tempfile.new(["config", ".yml"])
+      yaml_file.write(YAML.dump("rate" => 0.5))
+      yaml_file.close
+
+      config = described_class.define(yaml: yaml_file.path, env: {}) do
+        float :rate
+      end
+
+      expect(config[:rate]).to eq(0.5)
+    ensure
+      yaml_file&.unlink
+    end
+  end
+
+  describe "layer precedence" do
+    it "ENV > YAML > defaults (full stack)" do
+      yaml_file = Tempfile.new(["config", ".yml"])
+      yaml_file.write(YAML.dump("name" => "yaml-val"))
+      yaml_file.close
+
+      config = described_class.define(yaml: yaml_file.path, env: { "APP_NAME" => "env-val" }) do
+        string :name, default: "default-val", env: "APP_NAME"
+      end
+
+      expect(config[:name]).to eq("env-val")
+    ensure
+      yaml_file&.unlink
+    end
+
+    it "YAML > defaults when ENV not set" do
+      yaml_file = Tempfile.new(["config", ".yml"])
+      yaml_file.write(YAML.dump("name" => "yaml-val"))
+      yaml_file.close
+
+      config = described_class.define(yaml: yaml_file.path, env: {}) do
+        string :name, default: "default-val", env: "APP_NAME"
+      end
+
+      expect(config[:name]).to eq("yaml-val")
+    ensure
+      yaml_file&.unlink
+    end
+  end
+
+  describe "multiple definitions" do
+    it "supports many keys of mixed types" do
+      config = described_class.define(env: {}) do
+        string :name, default: "app"
+        integer :port, default: 3000
+        boolean :debug, default: false
+        float :rate, default: 1.5
+      end
+
+      expect(config.keys).to contain_exactly(:name, :port, :debug, :rate)
+      expect(config[:name]).to eq("app")
+      expect(config[:port]).to eq(3000)
+      expect(config[:debug]).to eq(false)
+      expect(config[:rate]).to eq(1.5)
+    end
+  end
+
+  describe "YAML edge cases" do
+    it "handles YAML file with non-hash root" do
+      yaml_file = Tempfile.new(["config", ".yml"])
+      yaml_file.write(YAML.dump("just a string"))
+      yaml_file.close
+
+      config = described_class.define(yaml: yaml_file.path, env: {}) do
+        string :name, default: "fallback"
+      end
+
+      expect(config[:name]).to eq("fallback")
+    ensure
+      yaml_file&.unlink
+    end
   end
 end
