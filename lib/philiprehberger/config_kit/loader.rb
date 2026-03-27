@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-require "yaml"
+require 'yaml'
 
 module Philiprehberger
   module ConfigKit
@@ -60,8 +60,8 @@ module Philiprehberger
 
       def cast_boolean(value)
         case value
-        when true, "true", "1", "yes" then true
-        when false, "false", "0", "no" then false
+        when true, 'true', '1', 'yes' then true
+        when false, 'false', '0', 'no' then false
         else !!value
         end
       end

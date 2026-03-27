@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
-require_relative "config_kit/version"
-require_relative "config_kit/schema"
-require_relative "config_kit/loader"
-require_relative "config_kit/store"
+require_relative 'config_kit/version'
+require_relative 'config_kit/schema'
+require_relative 'config_kit/loader'
+require_relative 'config_kit/store'
 
 module Philiprehberger
   module ConfigKit
