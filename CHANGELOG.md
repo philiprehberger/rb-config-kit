@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-03-29
+
+### Added
+- Nested configuration with dot-notation keys (e.g., `database.host`) mapped to nested YAML and uppercase ENV variables
+- Array type declaration with `array(key, of: :type)` — splits ENV values by comma, coerces each element
+- Hash type declaration with `hash_type(key)` — collects ENV vars matching `KEY_*` pattern into a hash
+- Required key validation with `required(key, type:)` — raises `ConfigKit::MissingKeyError` at define-time if no value found
+- Auto-generated ENV key mapping from key names (uppercased, dots replaced with underscores)
+
 ## [0.1.8] - 2026-03-26
 
 ### Changed
