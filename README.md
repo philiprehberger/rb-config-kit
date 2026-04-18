@@ -103,6 +103,21 @@ config[:ports] # => [3000, 4000, 5000]
 config[:redis] # => { "host" => "localhost", "port" => "6379" }
 ```
 
+### Nested access
+
+Use `#dig` to walk nested hash and array values with standard Ruby `dig` semantics. Returns `nil` if any intermediate key is missing.
+
+```ruby
+config = Philiprehberger::ConfigKit.define(yaml: "config.yml") do
+  hash_type :database
+end
+
+# Given YAML: database: { host: "localhost", port: 5432 }
+config.dig(:database, "host") # => "localhost"
+config.dig(:database, "missing") # => nil
+config.dig(:nonexistent, :deep) # => nil
+```
+
 ### Required keys
 
 ```ruby
@@ -127,6 +142,7 @@ Values are resolved in this order (highest priority first):
 |--------|-------------|
 | `Philiprehberger::ConfigKit.define(yaml:, env:, &block)` | Create a new config store |
 | `config.get(key)` / `config[key]` | Get a config value |
+| `config.dig(*keys)` | Walk nested hash/array values; returns `nil` if any key is missing |
 | `config.to_h` | Export all values as a nested hash |
 | `config.keys` | List all defined keys |
 | `config.key?(key)` | Check if a key is defined |

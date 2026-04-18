@@ -291,6 +291,77 @@ RSpec.describe Philiprehberger::ConfigKit do
       expect(h1).not_to be(h2)
       expect(h1).to eq(h2)
     end
+
+    describe '#dig' do
+      it 'returns the top-level value when given a single key' do
+        store = described_class.define(env: {}) do
+          integer :port, default: 3000
+        end
+
+        expect(store[:port]).to eq(3000)
+      end
+
+      it 'walks nested hashes' do
+        yaml_file = Tempfile.new(['config', '.yml'])
+        yaml_file.write(YAML.dump('database' => { 'host' => 'localhost', 'port' => 5432 }))
+        yaml_file.close
+
+        store = described_class.define(yaml: yaml_file.path, env: {}) do
+          hash_type :database
+        end
+
+        expect(store.dig(:database, 'host')).to eq('localhost')
+        expect(store.dig(:database, 'port')).to eq(5432)
+      ensure
+        yaml_file&.unlink
+      end
+
+      it 'returns nil when an intermediate key is missing' do
+        yaml_file = Tempfile.new(['config', '.yml'])
+        yaml_file.write(YAML.dump('database' => { 'host' => 'localhost' }))
+        yaml_file.close
+
+        store = described_class.define(yaml: yaml_file.path, env: {}) do
+          hash_type :database
+        end
+
+        expect(store.dig(:database, 'missing')).to be_nil
+      ensure
+        yaml_file&.unlink
+      end
+
+      it 'returns nil when the top-level key is missing' do
+        store = described_class.define(env: {}) do
+          string :name, default: 'app'
+        end
+
+        expect(store[:missing]).to be_nil
+        expect(store.dig(:missing, :deeper)).to be_nil
+      end
+
+      it 'walks through arrays with integer indices' do
+        yaml_file = Tempfile.new(['config', '.yml'])
+        yaml_file.write(YAML.dump('servers' => { 'hosts' => [{ 'name' => 'web-1' }, { 'name' => 'web-2' }] }))
+        yaml_file.close
+
+        store = described_class.define(yaml: yaml_file.path, env: {}) do
+          hash_type :servers
+        end
+
+        expect(store.dig(:servers, 'hosts', 0, 'name')).to eq('web-1')
+        expect(store.dig(:servers, 'hosts', 1, 'name')).to eq('web-2')
+      ensure
+        yaml_file&.unlink
+      end
+
+      it 'raises ArgumentError when called with no arguments' do
+        store = described_class.define(env: {}) do
+          string :name, default: 'app'
+        end
+
+        expect { store.dig }.to raise_error(ArgumentError)
+      end
+    end
   end
 
   describe 'layer precedence' do
