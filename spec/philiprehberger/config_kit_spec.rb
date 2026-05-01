@@ -362,6 +362,43 @@ RSpec.describe Philiprehberger::ConfigKit do
         expect { store.dig }.to raise_error(ArgumentError)
       end
     end
+
+    describe '#fetch' do
+      it 'returns the value for a present key' do
+        expect(config.fetch(:name)).to eq('app')
+      end
+
+      it 'returns the default when the key is missing' do
+        expect(config.fetch(:missing, 'fallback')).to eq('fallback')
+      end
+
+      it 'yields the block when the key is missing' do
+        expect(config.fetch(:missing) { |k| "no #{k}" }).to eq('no missing')
+      end
+
+      it 'raises KeyError when no fallback is provided' do
+        expect { config.fetch(:missing) }.to raise_error(KeyError, /missing/)
+      end
+
+      it 'rejects more than one positional default' do
+        expect { config.fetch(:name, 1, 2) }.to raise_error(ArgumentError)
+      end
+    end
+
+    describe '#each' do
+      it 'yields key/value pairs in declaration order' do
+        pairs = config.each_with_object([]) { |(k, v), acc| acc << [k, v] }
+        expect(pairs).to eq([[:name, 'app'], [:port, 3000]])
+      end
+
+      it 'returns an Enumerator without a block' do
+        expect(config.each).to be_a(Enumerator)
+      end
+
+      it 'works with Enumerable methods (Enumerable mix-in)' do
+        expect(config.map { |_, v| v }).to contain_exactly('app', 3000)
+      end
+    end
   end
 
   describe 'layer precedence' do

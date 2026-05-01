@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-05-01
+
+### Added
+- `Store#fetch(key, default = nil, &block)` — Hash-like fetch with default fallback, block fallback, or `KeyError`
+- `Store#each(&block)` — yields `[key, value]` pairs in declaration order; returns `Enumerator` without a block
+- `Store` now mixes in `Enumerable`, exposing `map`, `select`, `to_a`, etc.
+
 ## [0.3.0] - 2026-04-17
 
 ### Added

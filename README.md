@@ -118,6 +118,23 @@ config.dig(:database, "missing") # => nil
 config.dig(:nonexistent, :deep) # => nil
 ```
 
+### Hash-like Access
+
+```ruby
+config = Philiprehberger::ConfigKit.define(env: {}) do
+  string :name, default: "app"
+  integer :port, default: 3000
+end
+
+config.fetch(:name)                          # => "app"
+config.fetch(:missing, "fallback")           # => "fallback"
+config.fetch(:missing) { |k| "no #{k}" }     # => "no missing"
+config.fetch(:missing)                       # raises KeyError
+
+config.each { |key, value| puts "#{key}=#{value}" }
+config.map { |_, v| v }                       # => ["app", 3000]
+```
+
 ### Required keys
 
 ```ruby
@@ -143,6 +160,8 @@ Values are resolved in this order (highest priority first):
 | `Philiprehberger::ConfigKit.define(yaml:, env:, &block)` | Create a new config store |
 | `config.get(key)` / `config[key]` | Get a config value |
 | `config.dig(*keys)` | Walk nested hash/array values; returns `nil` if any key is missing |
+| `config.fetch(key, default = nil, &block)` | Hash-like fetch with default fallback, block fallback, or `KeyError` |
+| `config.each(&block)` | Yield each `[key, value]` pair in declaration order; `Enumerator` without a block |
 | `config.to_h` | Export all values as a nested hash |
 | `config.keys` | List all defined keys |
 | `config.key?(key)` | Check if a key is defined |

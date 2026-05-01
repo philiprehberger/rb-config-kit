@@ -3,6 +3,8 @@
 module Philiprehberger
   module ConfigKit
     class Store
+      include Enumerable
+
       attr_reader :schema
 
       def initialize(yaml: nil, env: ENV, &block)
@@ -20,6 +22,40 @@ module Philiprehberger
       end
 
       alias [] get
+
+      # Hash-like fetch with default fallback, block fallback, or KeyError.
+      #
+      # @overload fetch(key)
+      #   @return [Object] the value
+      #   @raise [KeyError] if the key is missing and no default/block provided
+      # @overload fetch(key, default)
+      #   @return [Object] the value, or `default` if missing
+      # @overload fetch(key, &block)
+      #   @return [Object] the value, or the block's return when missing
+      def fetch(key, *args, &block)
+        raise ArgumentError, "wrong number of arguments (given #{args.length + 1}, expected 1..2)" if args.length > 1
+
+        normalized = key.to_s.include?('.') ? key.to_s : key
+        return @values[normalized] if @values.key?(normalized)
+        return args.first if args.length == 1
+        return block.call(key) if block
+
+        raise KeyError, "key not found: #{key.inspect}"
+      end
+
+      # Yield each `[key, value]` pair in declaration order.
+      #
+      # Returns an `Enumerator` if no block is given, enabling `map`, `select`,
+      # `to_a`, and other `Enumerable` methods to flow through.
+      #
+      # @yield [key, value]
+      # @return [self, Enumerator]
+      def each(&block)
+        return @values.each unless block
+
+        @values.each(&block)
+        self
+      end
 
       # Walks nested hash/array values using Ruby's standard +dig+ semantics.
       #
